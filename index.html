@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>PV Test for 50 States data update</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+	<!-- styles -->
+	<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+	<style> 
+		body {padding-top: 40px; } 
+		.nav {
+		  display: block;
+		  padding: 16px 0 0 0; }
+		  .nav ul.tabs {
+		    padding: 0;
+		    display: inline; }
+		    .nav ul.tabs li {
+		      display: inline-block;
+		      list-style: none;
+		      float: left; }
+		      .nav ul.tabs li a {
+		        display: inline-block;
+		        text-decoration: none;
+		        color: #ccc;
+		        padding: 0 15px 12px 15px;
+		        border-bottom: 4px solid #eaeaea; }
+		        .nav ul.tabs li a.active, .nav ul.tabs li a:hover {
+		          border-bottom: 4px solid #61bb82;
+		          font-weight: bold;
+		          color: #575757; }
+
+		.content {
+		  display: none; }
+		  .content.active {
+		    display: block; }
+	</style>
+
+	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css">
+
+	<!-- scripts -->
+	<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+	<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+</head>
+<body>
+
+<div class="container">
+	<div class="row">
+		<div class="col-md-8 col-md-offset-2">
+			
+			<h1>Test Data for 50 States</h1>
+			<p>After you use ParseHub to collection data from pages, it might look like this, below. Now...</p>
+			<div id="form">
+				<div class="form-group">
+					<label for="action-select">Select A Function to update the data.</label><br>
+					<select name="action-select" id="action-select" class="form-control" required="required">
+						<option value=""></option>
+						<!-- <option value="download-images">download images</option> -->
+						<option value="remove-urls">remove image paths and variables</option>
+						<option value="add-ids">simulate manually adding IDs to entries</option>
+						<!-- <option value="exchange-images">exchange images name for IDs</option> -->
+					</select>
+				</div>
+			</div>
+		</div>
+		<div class="nav container">
+      <ul class="tabs">
+        <li><a href="#table" class="active">Table View</a></li>
+        <li><a href="#json">JSON</a></li>
+      </ul>
+    </div>
+    <div class="wrapper">
+    	<div class="col-md-12 content active" id="table">
+				<table id="excelDataTable" class="table table-hover"></table>
+			</div>
+			<div class="col-md-12 content" id="json">
+				<textarea name="data" id="data" class="form-control" rows="20" required="required"></textarea>
+				<button type="button" class="btn btn-default" onclick="getJSONFromTexArea()">Update</button>
+			</div>
+    </div>
+	</div>
+</div> <!-- /container -->
+<script src="download.min.js"></script>
+<script>
+
+$(document).ready(function(){
+	// add data to Table
+	buildHtmlTable('#excelDataTable');
+	// add data to textarea field
+	addDataToTextArea();
+});
+
+var myList = [{
+	"id": 1,
+	"first_name": "Bonnie",
+	"last_name": "Chavez",
+	"email": "bchavez0@lulu.com",
+	"image": "http://www.flsenate.gov/PublishedContent/Senators/2016-2018/Photos/s11_5193.jpg?var=124882",
+	"city": "Phoenix",
+	"state": "Arizona",
+	"position": "Chief Design Engineer",
+	"bio": "Mauris enim leo, rhoncus sed, vestibulum sit amet, cursus id, turpis. Integer aliquet, massa id lobortis convallis, tortor risus dapibus augue, vel accumsan tellus nisi eu orci. Mauris lacinia sapien quis libero.\n\nNullam sit amet turpis elementum ligula vehicula consequat. Morbi a ipsum. Integer a nibh."
+}, {
+	"id": 2,
+	"first_name": "Robin",
+	"last_name": "Ross",
+	"email": "rross1@nature.com",
+	"image": "http://www.flsenate.gov/PublishedContent/Senators/2016-2018/Photos/S34_5198.jpg",
+	"city": "Pittsburgh",
+	"state": "Pennsylvania",
+	"position": "Speech Pathologist",
+	"bio": "Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Vivamus vestibulum sagittis sapien. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.\n\nEtiam vel augue. Vestibulum rutrum rutrum neque. Aenean auctor gravida sem."
+}, {
+	"id": 3,
+	"first_name": "Elizabeth",
+	"last_name": "Daniels",
+	"email": "edaniels2@aol.com",
+	"image": "http://www.flsenate.gov/PublishedContent/Senators/2016-2018/Photos/S02_5190.jpg",
+	"city": "Riverside",
+	"state": "California",
+	"position": "Senior Developer",
+	"bio": "In congue. Etiam justo. Etiam pretium iaculis justo."
+}, {
+	"id": 4,
+	"first_name": "Mildred",
+	"last_name": "Porter",
+	"email": "mporter3@macromedia.com",
+	"image": "http://www.flsenate.gov/PublishedContent/Senators/2016-2018/Photos/S40_5197.jpg",
+	"city": "Lake Charles",
+	"state": "Louisiana",
+	"position": "Computer Systems Analyst I",
+	"bio": "In congue. Etiam justo. Etiam pretium iaculis justo.\n\nIn hac habitasse platea dictumst. Etiam faucibus cursus urna. Ut tellus."
+}, {
+	"id": 5,
+	"first_name": "Tammy",
+	"last_name": "Torres",
+	"email": "ttorres4@joomla.org",
+	"image": "http://www.flsenate.gov/PublishedContent/Senators/2016-2018/Photos/S31_5097.jpg",
+	"city": "Jamaica",
+	"state": "New York",
+	"position": "Pharmacist",
+	"bio": "Integer tincidunt ante vel ipsum. Praesent blandit lacinia erat. Vestibulum sed magna at nunc commodo placerat.\n\nPraesent blandit. Nam nulla. Integer pede justo, lacinia eget, tincidunt eget, tempus vel, pede."
+}, {
+	"id": 6,
+	"first_name": "Michelle",
+	"last_name": "Vasquez",
+	"email": "mvasquez5@symantec.com",
+	"image": "http://www.flsenate.gov/PublishedContent/Senators/2016-2018/Photos/S40_5197.jpg",
+	"city": "Austin",
+	"state": "Texas",
+	"position": "Account Coordinator",
+	"bio": "Proin interdum mauris non ligula pellentesque ultrices. Phasellus id sapien in sapien iaculis congue. Vivamus metus arcu, adipiscing molestie, hendrerit at, vulputate vitae, nisl."
+}, {
+	"id": 7,
+	"first_name": "Roy",
+	"last_name": "Montgomery",
+	"email": "rmontgomery6@hhs.gov",
+	"image": "http://www.flsenate.gov/PublishedContent/Senators/2016-2018/Photos/S01_5194.jpg",
+	"city": "Springfield",
+	"state": "Illinois",
+	"position": "Legal Assistant",
+	"bio": "Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Vivamus vestibulum sagittis sapien. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.\n\nEtiam vel augue. Vestibulum rutrum rutrum neque. Aenean auctor gravida sem.\n\nPraesent id massa id nisl venenatis lacinia. Aenean sit amet justo. Morbi ut odio."
+}, {
+	"id": 8,
+	"first_name": "Adam",
+	"last_name": "Garza",
+	"email": "agarza7@github.io",
+	"image": "http://www.flsenate.gov/PublishedContent/Senators/2016-2018/Photos/S35_5007.jpg",
+	"city": "Fresno",
+	"state": "California",
+	"position": "Environmental Specialist",
+	"bio": "Maecenas ut massa quis augue luctus tincidunt. Nulla mollis molestie lorem. Quisque ut erat."
+}, {
+	"id": 9,
+	"first_name": "Raymond",
+	"last_name": "Ford",
+	"email": "rford8@china.com.cn",
+	"image": "http://www.flsenate.gov/PublishedContent/Senators/2016-2018/Photos/S12_5192.jpg",
+	"city": "Richmond",
+	"state": "Virginia",
+	"position": "Graphic Designer",
+	"bio": "Phasellus in felis. Donec semper sapien a libero. Nam dui."
+}, {
+	"id": 10,
+	"first_name": "Julia",
+	"last_name": "Larson",
+	"email": "jlarson9@rakuten.co.jp",
+	"image": "http://www.flsenate.gov/PublishedContent/Senators/2016-2018/Photos/S24_5095.jpg",
+	"city": "San Francisco",
+	"state": "California",
+	"position": "Recruiter",
+	"bio": "Cras non velit nec nisi vulputate nonummy. Maecenas tincidunt lacus at velit. Vivamus vel nulla eget eros elementum pellentesque."
+}, {
+	"id": 11,
+	"first_name": "Ryan",
+	"last_name": "Webb",
+	"email": "rwebba@phoca.cz",
+	"image": "http://www.flsenate.gov/PublishedContent/Senators/2016-2018/Photos/S04_5094.jpg",
+	"city": "Spring",
+	"state": "Texas",
+	"position": "Recruiter",
+	"bio": "Morbi non lectus. Aliquam sit amet diam in magna bibendum imperdiet. Nullam orci pede, venenatis non, sodales sed, tincidunt eu, felis.\n\nFusce posuere felis sed lacus. Morbi sem mauris, laoreet ut, rhoncus aliquet, pulvinar sed, nisl. Nunc rhoncus dui vel sem."
+}, {
+	"id": 12,
+	"first_name": "Maria",
+	"last_name": "Tucker",
+	"email": "mtuckerb@salon.com",
+	"image": "http://www.flsenate.gov/PublishedContent/Senators/2016-2018/Photos/S27_5047.jpg",
+	"city": "Houston",
+	"state": "Texas",
+	"position": "Web Designer IV",
+	"bio": "Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Vivamus vestibulum sagittis sapien. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.\n\nEtiam vel augue. Vestibulum rutrum rutrum neque. Aenean auctor gravida sem.\n\nPraesent id massa id nisl venenatis lacinia. Aenean sit amet justo. Morbi ut odio."
+}, {
+	"id": 13,
+	"first_name": "Jason",
+	"last_name": "Rogers",
+	"email": "jrogersc@1688.com",
+	"image": "http://www.flsenate.gov/PublishedContent/Senators/2016-2018/Photos/S05_5101.jpg",
+	"city": "Albany",
+	"state": "New York",
+	"position": "Assistant Manager",
+	"bio": "Morbi porttitor lorem id ligula. Suspendisse ornare consequat lectus. In est risus, auctor sed, tristique in, tempus sit amet, sem."
+}, {
+	"id": 14,
+	"first_name": "Diana",
+	"last_name": "Lewis",
+	"email": "dlewisd@wired.com",
+	"image": "http://www.flsenate.gov/PublishedContent/Senators/2016-2018/Photos/S27_5047.jpg",
+	"city": "Chesapeake",
+	"state": "Virginia",
+	"position": "VP Product Management",
+	"bio": "Proin eu mi. Nulla ac enim. In tempor, turpis nec euismod scelerisque, quam turpis adipiscing lorem, vitae mattis nibh ligula nec sem.\n\nDuis aliquam convallis nunc. Proin at turpis a pede posuere nonummy. Integer non velit."
+}, {
+	"id": 15,
+	"first_name": "Edward",
+	"last_name": "Young",
+	"email": "eyounge@bizjournals.com",
+	"image": "http://www.flsenate.gov/PublishedContent/Senators/2016-2018/Photos/S32_5189.jpg",
+	"city": "Cincinnati",
+	"state": "Ohio",
+	"position": "Research Nurse",
+	"bio": "Quisque porta volutpat erat. Quisque erat eros, viverra eget, congue eget, semper rutrum, nulla. Nunc purus.\n\nPhasellus in felis. Donec semper sapien a libero. Nam dui.\n\nProin leo odio, porttitor id, consequat in, consequat ut, nulla. Sed accumsan felis. Ut at dolor quis odio consequat varius."
+}];
+
+//pretend id doesn't exist
+delete myList.id;
+for (var i=0; i<myList.length; i++) {
+  delete myList[i]["id"];
+}
+
+
+$('#action-select').change(function(){
+	var choice = $('#action-select').val();;
+	switch(choice) {
+		case 'download-images':
+				downloadImages();
+				break;
+		case 'remove-urls':
+				removeURLs();
+				break;
+		case 'add-ids':
+				addIDs();
+				break;
+		case 'exchange-images':
+				exchangesImages();
+				break;
+		default:
+				// nothing
+	}
+});
+
+// give function options
+// // collect images from URLS in entries
+function downloadImages(){
+	for (var i=0; i<myList.length; i++) {
+	  download(myList[i].image);
+	}
+}
+// // remove URLs from image paths in entries
+function removeURLs(){
+	for (var i=0; i<myList.length; i++) {
+	  var fileNameIndex = myList[i].image.lastIndexOf("/") + 1;
+	  // removes path from URL
+	  myList[i].image = myList[i].image.substr(fileNameIndex);
+	  // removes variables from URL
+	  if( myList[i].image.includes("?") ){
+		  myList[i].image = myList[i].image.substring(0, myList[i].image.indexOf('?'));
+	  }
+	}
+	updateDataTable();
+}
+// // add IDs to entries
+function addIDs(){
+	for (var i=0; i<myList.length; i++) {
+	  myList[i].id = Math.floor(Math.random()*90000) + 10000;
+	}
+	updateDataTable();
+}
+// // exchange image name with ID in entries
+function exchangesImages(){
+	// check if image exists
+	// update image name with ID
+	// update data image name with ID
+}
+
+/////
+// show data
+/////
+// Builds the HTML Table out of myList.
+function buildHtmlTable(selector) {
+    var columns = addAllColumnHeaders(myList, selector);
+
+    for (var i = 0 ; i < myList.length ; i++) {
+        var row$ = $('<tr/>');
+        for (var colIndex = 0 ; colIndex < columns.length ; colIndex++) {
+            var cellValue = myList[i][columns[colIndex]];
+
+            if (cellValue == null) { cellValue = ""; }
+
+            row$.append($('<td/>').html(cellValue));
+        }
+        $(selector).append(row$);
+    }
+}
+
+// Adds a header row to the table and returns the set of columns.
+// Need to do union of keys from all records as some records may not contain
+// all records
+function addAllColumnHeaders(myList, selector){
+    var columnSet = [];
+    var headerTr$ = $('<tr/>');
+
+    for (var i = 0 ; i < myList.length ; i++) {
+        var rowHash = myList[i];
+        for (var key in rowHash) {
+            if ($.inArray(key, columnSet) == -1){
+                columnSet.push(key);
+                headerTr$.append($('<th/>').html(key));
+            }
+        }
+    }
+    $(selector).append(headerTr$);
+
+    return columnSet;
+}
+
+function updateDataTable(){
+	$( "#excelDataTable" ).empty();
+	buildHtmlTable('#excelDataTable');
+	addDataToTextArea();
+}
+
+// retrieve data from textarea as JSON
+function getJSONFromTexArea(){
+	
+	var ugly = document.getElementById('data').value;
+
+	//remove line breaks
+  ugly = ugly.replace(/(\r\n|\n|\r)/gm,"");
+  var obj = JSON.parse(ugly);
+
+	// update global variable
+	myList = obj;
+	// update textarea & table
+	updateDataTable()
+}
+
+// add data to TextArea
+function addDataToTextArea() {
+  var data = JSON.stringify(myList, undefined, 4);
+  document.getElementById('data').value = data;
+}
+
+</script>
+
+<script>
+$( document ).ready(function() {
+	$("ul.tabs li").click(function(e){
+		e.preventDefault();
+		if(!$("a", this).hasClass("active")){
+			nthContent = $(this).index();
+			nthContent += 1;
+      // remove active class from tabs and content
+      $("ul.tabs li a.active, .content.active").removeClass("active");
+      // add active class to tab and content
+      $("a", this).addClass("active");
+      $(".content:nth-of-type("+nthContent+")").addClass("active");
+    }
+  });
+});
+</script>
+</body>
+</html>
